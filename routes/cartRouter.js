@@ -21,7 +21,9 @@ cartRouter.route('/')
         .then((carts) => {
             var total=0;
             for(let cart of carts){
-                total+=cart.products.price
+                if(cart.products!=null){
+                    total+=cart.products.price
+                }
             }
             carts.total=total;
             var result=carts;
