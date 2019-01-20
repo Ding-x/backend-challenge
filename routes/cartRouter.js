@@ -35,7 +35,7 @@ cartRouter.route('/')
             }, (err) => next(err)).catch((err) => next(err));
         }
         else {
-            err = new Error('Cart not found in request body');
+            err = new Error('Item not found in request body');
             err.status = 404;
             return next(err);
         }
@@ -62,7 +62,7 @@ cartRouter.route('/placeorder?')
     })
 
     .post(authenticate.verifyUser,(req, res, next) => {
-        var errMess=""
+        var errMess="There is no inventory of "
         Carts.find({owner:req.user._id})
         .populate('products')
         .then((carts) => {
@@ -74,22 +74,17 @@ cartRouter.route('/placeorder?')
                             }, {
                                 new: true
                             })
-                            .then((product)=>{
-                                console.log(product)
-                            })
-
-                        Carts.remove({_id:cart._id}).then((result) => {
-
-                        });
+                        Carts.remove({_id:cart._id})
                     }
                     else{
-                        errMess+='There is no inventory of '+cart.products.title+"\n";
+                        errMess+= cart.products.title+" ";
                     }
                 })
             }
             Carts.find({owner:req.user._id})
             .then((carts) => {
                 if(carts.length>0){
+                    errMess+="\n We kept these items in your shopping cart."
                     err = new Error(errMess);
                     err.status = 403;
                     return next(err);

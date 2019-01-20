@@ -44,7 +44,6 @@ productRouter.route('/')
     })
 
     .delete(authenticate.verifyUser,(req, res, next) => {
-    
         Products.remove({owner: req.user._id}).then((result) => {
             res.statusCode = 200;
            res.setHeader("Content-Type", "application/json");
