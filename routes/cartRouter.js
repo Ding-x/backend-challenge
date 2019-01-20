@@ -19,9 +19,17 @@ cartRouter.route('/')
         Carts.find({owner:req.user._id})
         .populate('products')
         .then((carts) => {
+            var total=0;
+            for(let cart of carts){
+                total+=cart.products.price
+            }
+            carts.total=total;
+            var result=carts;
+            console.log(result)
+
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
-            res.json(carts);
+            res.json({"total_price":total,"cart_list":carts});
         }, (err) => next(err)).catch((err) => next(err));
     })
 
