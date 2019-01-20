@@ -25,8 +25,6 @@ cartRouter.route('/')
             }
             carts.total=total;
             var result=carts;
-            console.log(result)
-
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json");
             res.json({"total_price":total,"cart_list":carts});
@@ -100,25 +98,26 @@ cartRouter.route('/placeorder?')
                                 }).then((result) => { });
                             Carts.remove({_id:cart._id}).then((result) => { });
                         }
-                        else{count++}
                     })
                 }
-                Carts.find({owner:req.user._id})
-                .then((carts) => {
-                    if(count>0){
-                        var errMess="Some products have no inventory and we kept these products in your shopping cart. Other products have been transacted."
-                        err = new Error(errMess);
-                        err.status = 404;
-                        return next(err);
-                    }
-                    else{
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.json({
-                            success: true,
-                            status: 'Transaction Successful!'
-                          });
-                    }
+                setImmediate(()=>{
+                    Carts.find({owner:req.user._id})
+                    .then((carts) => {
+                        if(carts.length>0){
+                            var errMess="Some products have no inventory and we kept these products in your shopping cart. Other products have been transacted."
+                            err = new Error(errMess);
+                            err.status = 404;
+                            return next(err);
+                        }
+                        else{
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json({
+                                success: true,
+                                status: 'Transaction Successful!'
+                              });
+                        }
+                    })
                 })
             }
             else{
