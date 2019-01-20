@@ -6,6 +6,8 @@ var authenticate = require('../authenticate');
 var router = express.Router();
 router.use(bodyParser.json());
 
+//Create a new user.
+//In the request body, the format should be {"username":"yourusername","password":"yourpassword"}
 router.post('/signup', (req, res, next) => {
   User.register(new User({
       username: req.body.username
@@ -46,6 +48,8 @@ router.post('/signup', (req, res, next) => {
     });
 });
 
+//Login with a exsiting user.
+//In the request body, the format should be {"username":"yourusername","password":"yourpassword"}
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err)

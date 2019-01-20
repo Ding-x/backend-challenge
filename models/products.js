@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 require('mongoose-currency').loadType(mongoose);
 const Currency = mongoose.Types.Currency;
 
+//Product data model, refering to owner id
 const productSchema = new Schema({
     title: {
         type: String,

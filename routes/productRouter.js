@@ -7,7 +7,11 @@ const authenticate = require('../authenticate');
 const productRouter = express.Router();
 productRouter.use(bodyParser.json());
 
+//-------------------------------------------------------------------------------
+//RESTful api '/products/'
 productRouter.route('/')
+    //Get all the products in the database.
+    //The result would be an array in json format.
     .get((req, res, next) => {
         Products.find()
         .then((products) => {
@@ -17,6 +21,9 @@ productRouter.route('/')
         }, (err) => next(err)).catch((err) => next(err));
     })
 
+    //Add a new product to the database .
+    //The result would return the new product information in json format.
+    //In the request body, the format should be {"title":"product title","price":product price,"inventory":product inventory number}
     .post(authenticate.verifyUser,(req, res, next) => {
         if (req.body != null) {
             req.body.owner = req.user._id;
@@ -43,6 +50,7 @@ productRouter.route('/')
         res.end('PUT operation is not supported on /products');
     })
 
+     //Delete all the products in the database based on their related owners.
     .delete(authenticate.verifyUser,(req, res, next) => {
         Products.remove({owner: req.user._id}).then((result) => {
             res.statusCode = 200;
@@ -51,8 +59,11 @@ productRouter.route('/')
         }, (err) => next(err)).catch((err) => next(err));
     })
 
-
+//-------------------------------------------------------------------------------
+//RESTful api '/products//available?'
 productRouter.route('/available?')
+
+    //Get all the products with available inventory in the database
     .get((req, res, next) => {
         Products.find({inventory : {$gte : 1}})
         .then((products) => {
@@ -77,8 +88,11 @@ productRouter.route('/available?')
         res.end('PUT operation is not supported on /products/available?');
     })
 
-
+//-------------------------------------------------------------------------------
+//RESTful api '/products/:productId'
 productRouter.route('/:productId')
+
+    //Get one product in the database based on its id.
     .get((req, res, next) => {
         Products.findById(req.params.productId).then((product) => {
             res.statusCode = 200;
@@ -92,6 +106,9 @@ productRouter.route('/:productId')
         res.end('POST operation is not supported on /products/:productId');
     })
 
+    //Update one product in the database based on its id.
+    //The result would return the new product information in json format.
+    //In the request body, the format should be {"title":"product new title","price":product new price,"inventory":product new inventory number}
     .put(authenticate.verifyUser,(req, res, next) => {
         Products.findById(req.params.productId).then((product) => {
             if((""+product.owner)==req.user._id){
@@ -113,6 +130,7 @@ productRouter.route('/:productId')
         }, (err) => next(err)).catch((err) => next(err));
     })
 
+    //Delete one product in the database based on its id.
     .delete(authenticate.verifyUser,(req, res, next) => {
         Products.findById(req.params.productId).then((product) => {
                 if((""+product.owner)==req.user._id){
