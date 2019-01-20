@@ -19,8 +19,7 @@ To run the project, you can type the following commands:
  Then, it will run on localhost:3000
 
   # Authentication
-  All the product and cart APIs need to be verified as a registered user. You can create a new account using user api which will be listed below, you can also use a test account. **Username: test; Password:123**
-  After login, you will get a token, include the token as the following format "bearer yourtoken" in your header with key "Authorization". The content-type should be application/json.
+  All the product and cart APIs need to be verified as a registered user. You can create a new account using user api which will be listed below, you can also use a test account. **Username: test; Password:123**; After login, you will get a token, include the token as the following format "bearer yourtoken" in your header with key "Authorization". The content-type should be application/json.
 
   # User API description
   #### 1. Register a new user
