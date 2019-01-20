@@ -77,11 +77,11 @@ cartRouter.route('/placeorder?')
     // It will first check whther the shopping cart is empty. If empty, it will return an error message
     // Then it will transact products one by one. Only those items' inventory is more than 0, the transaction will be done. Or it will return an error meassage.
     .post(authenticate.verifyUser,(req, res, next) => {
-        var errMess="There is no inventory of "
         Carts.find({owner:req.user._id})
         .populate('products')
         .then((carts) => {
             if(carts.length>0){
+                var count = 0;
                 for(let cart of carts){
                     Products.findById(cart.products._id).then((product) => {
                         if(product.inventory>0){
@@ -92,15 +92,13 @@ cartRouter.route('/placeorder?')
                                 }).then((result) => { });
                             Carts.remove({_id:cart._id}).then((result) => { });
                         }
-                        else{
-                            errMess+= cart.products.title+",";
-                        }
+                        else{count++}
                     })
                 }
                 Carts.find({owner:req.user._id})
                 .then((carts) => {
-                    if(carts.length>0){
-                        errMess+=" and we kept these items in your shopping cart. Other items have been transacted."
+                    if(count>0){
+                        var errMess="Some products have no inventory and we kept these products in your shopping cart. Other products have been transacted."
                         err = new Error(errMess);
                         err.status = 404;
                         return next(err);
@@ -108,7 +106,10 @@ cartRouter.route('/placeorder?')
                     else{
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
-                        res.json(cart);
+                        res.json({
+                            success: true,
+                            status: 'Transaction Successful!'
+                          });
                     }
                 })
             }
