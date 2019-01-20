@@ -50,7 +50,6 @@ router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err)
       return next(err);
-
     if (!user) {
       res.statusCode = 401;
       res.setHeader('Content-Type', 'application/json');
@@ -58,13 +57,11 @@ router.post('/login', (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (!err) {
-
         var token = authenticate.getToken({_id: req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json({success: true, status: 'Login Successful!', token: token, admin:user.admin});
       }
-
     }); 
   }) (req, res, next);
 });

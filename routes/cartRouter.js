@@ -55,8 +55,9 @@ cartRouter.route('/')
         }, (err) => next(err)).catch((err) => next(err));
     })
 
-cartRouter.route('/placeorder?')
-    .get(authenticate.verifyUser,(req, res, next) => {
+    cartRouter.route('/placeorder?')
+
+    .get((req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation is not supported on /carts/placeorder?');
     })
@@ -66,51 +67,94 @@ cartRouter.route('/placeorder?')
         Carts.find({owner:req.user._id})
         .populate('products')
         .then((carts) => {
-            for(let cart of carts){
-                Products.findById(cart.products._id).then((product) => {
-                    if(product.inventory>0){
-                        Products.findByIdAndUpdate(product._id, {
-                                $set: { inventory: product.inventory-1 }
-                            }, {
-                                new: true
-                            })
-                        Carts.remove({_id:cart._id})
+            if(carts.length>0){
+                for(let cart of carts){
+                    Products.findById(cart.products._id).then((product) => {
+                        if(product.inventory>0){
+                            Products.findByIdAndUpdate(product._id, {
+                                    $set: { inventory: product.inventory-1 }
+                                }, {
+                                    new: true
+                                }).then((result) => { });
+                            Carts.remove({_id:cart._id}).then((result) => { });
+                        }
+                        else{
+                            errMess+= cart.products.title+",";
+                        }
+                    })
+                }
+                Carts.find({owner:req.user._id})
+                .then((carts) => {
+                    if(carts.length>0){
+                        errMess+=" and we kept these items in your shopping cart. Other items have been transacted."
+                        err = new Error(errMess);
+                        err.status = 404;
+                        return next(err);
                     }
                     else{
-                        errMess+= cart.products.title+" ";
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(cart);
                     }
                 })
             }
-            Carts.find({owner:req.user._id})
-            .then((carts) => {
-                if(carts.length>0){
-                    errMess+="\n We kept these items in your shopping cart."
-                    err = new Error(errMess);
-                    err.status = 403;
-                    return next(err);
-                }
-                else{
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(cart);
-                }
-            })
+            else{
+                err = new Error("Your shopping cart is empty.");
+                res.statusCode = 404;
+                return next(err);
+            }
+            
+
 
 
         }, (err) => next(err)).catch((err) => next(err));
     })
-
-    
 
     .put((req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation is not supported on /carts/placeorder?');
     })
 
-    .delete(authenticate.verifyUser,(req, res, next) => {
+    .delete((req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation is not supported on /carts/placeorder?');
     })
+
+
+    cartRouter.route('/:cartId')
+    .get(authenticate.verifyUser,(req, res, next) => {
+        res.statusCode = 403;
+        res.end('POST operation is not supported on /carts/:cartId');
+    })
+
+    .post(authenticate.verifyUser,(req, res, next) => {
+        res.statusCode = 403;
+        res.end('POST operation is not supported on /carts/:cartId');       
+    })
+
+    .put((req, res, next) => {
+        res.statusCode = 403;
+        res.end('POST operation is not supported on /carts/:cartId');
+    })
+
+    .delete(authenticate.verifyUser,(req, res, next) => {
+        Carts.findById(req.params.cartId).then((cart) => {
+            if((""+cart.owner)==req.user._id){
+                Carts.findByIdAndRemove(req.params.cartId).then((result) => {
+                    res.statusCode = 200;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(result);
+                })
+            }
+            else{
+                err = new Error('You are not the owner.');
+                err.status = 401;
+                return next(err);
+            }
+        }, (err) => next(err)).catch((err) => next(err));
+    })
+
+
 
 
 

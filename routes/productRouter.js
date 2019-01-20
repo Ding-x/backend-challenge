@@ -65,7 +65,6 @@ productRouter.route('/available?')
     .post((req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation is not supported on /products/available?');
-       
     })
 
     .put((req, res, next) => {
@@ -90,7 +89,7 @@ productRouter.route('/:productId')
 
     .post((req, res, next) => {
         res.statusCode = 403;
-        res.end('POST operation is not supported on /products/:productId' + req.params.productId);
+        res.end('POST operation is not supported on /products/:productId');
     })
 
     .put(authenticate.verifyUser,(req, res, next) => {
@@ -108,7 +107,7 @@ productRouter.route('/:productId')
             }
             else{
                 err = new Error('You are not the owner.');
-                err.status = 403;
+                err.status = 401;
                 return next(err);
             }
         }, (err) => next(err)).catch((err) => next(err));
@@ -125,7 +124,7 @@ productRouter.route('/:productId')
                 }
                 else{
                     err = new Error('You are not the owner.');
-                    err.status = 403;
+                    err.status = 401;
                     return next(err);
                 }
             }, (err) => next(err)).catch((err) => next(err));
