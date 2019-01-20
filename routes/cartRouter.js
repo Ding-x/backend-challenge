@@ -50,7 +50,7 @@ cartRouter.route('/')
             }, (err) => next(err)).catch((err) => next(err));
         }
         else {
-            err = new Error('Item not found in request body');
+            err = new Error('Product not found in request body');
             err.status = 404;
             return next(err);
         }
